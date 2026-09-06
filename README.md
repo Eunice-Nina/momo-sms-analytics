@@ -70,8 +70,8 @@ Board link: https://trello.com/b/rGnY8I6y/momo-sms-data-processing-analytics
 
 1. Clone the repository:
    ```bash
-   git clone [repo-url]
-   cd [repo-name]
+   git clone https://github.com/Eunice-Nina/momo-sms-analytics.git
+   cd momo-sms-analytics
    ```
 
 2. Create a virtual environment and install dependencies:
