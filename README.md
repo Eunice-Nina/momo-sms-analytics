@@ -21,7 +21,7 @@ Architecture diagram: [Link to Draw.io / Miro diagram]
 
 Tasks are tracked using [GitHub Projects / Trello / Jira].
 
-Board link: [Link to Scrum board]
+Board link: https://trello.com/b/rGnY8I6y
 
 ## Project Structure
 
