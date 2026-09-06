@@ -15,13 +15,13 @@ The system is built as an ETL (Extract, Transform, Load) pipeline feeding a ligh
 
 High-level design: XML input → ETL pipeline (parse → clean → categorize → load) → SQLite database → JSON export → frontend dashboard.
 
-Architecture diagram: [Link to Draw.io / Miro diagram]
+Architecture diagram: https://miro.com/app/board/uXjVHqF35hA=/?share_link_id=532822707039
 
 ## Scrum Board
 
 Tasks are tracked using [GitHub Projects / Trello / Jira].
 
-Board link: https://trello.com/b/rGnY8I6y
+Board link: https://trello.com/b/rGnY8I6y/momo-sms-data-processing-analytics
 
 ## Project Structure
 
