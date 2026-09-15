@@ -120,3 +120,41 @@ Available endpoints:
 ```bash
 pytest tests/
 ```
+
+
+## Database Design (Week 2)
+
+The relational schema backing the ETL pipeline lives in `database/database_setup.sql` (MySQL DDL + sample data) and is documented in `docs/design_rationale.md`. The ERD is in `docs/erd_diagram.png`.
+
+**Core entities:** Users, Transactions, Transaction_Categories, System_Logs, plus a Transaction_Category_Map junction table resolving the many-to-many relationship between transactions and categories.
+
+API/dashboard JSON shapes derived from this schema are documented in `examples/json_schemas.json`.
+
+### Repository structure additions
+```
+├── docs/
+│   ├── erd_diagram.png          # ERD (Draw.io/Lucidchart export)
+│   └── design_rationale.md      # Design rationale + data dictionary
+├── database/
+│   └── database_setup.sql       # DDL, constraints, indexes, sample data
+├── examples/
+│   └── json_schemas.json        # JSON models mirroring the SQL schema
+```
+
+---
+
+# Suggested commit split (5 members, each with real, distinct work)
+
+Graders check individual GitHub commits and AI-usage logs, and the rubric only credits *technical* contributions (SQL, JSON, schema logic) — not README/formatting. So structure it as 5 genuinely separate technical slices, each person committing their own piece directly (don't have one person paste everything in):
+
+| Member | Commits | What to actually do |
+|---|---|---|
+| Eunice Nina Sangwa | `Add Users and Transaction_Categories tables` | Write/commit the DDL for these two tables + their sample INSERTs from `database_setup.sql` |
+| Albertine Umuhoza | `Add Transactions table with constraints` | Commit the Transactions DDL, its CHECK constraints, indexes, and sample data |
+| Karen Stephy Musangwa | `Add Transaction_Category_Map junction table and System_Logs` | Commit these two tables, explain the M:N resolution in a commit message |
+| Kevine Niyonkuru | `Add JSON schema examples and SQL-to-JSON mapping` | Build/commit `examples/json_schemas.json`, write the mapping notes |
+| Jean Pierre Munezero | `Add sample CRUD/analytical queries and test results` | Run the SELECT/UPDATE/DELETE queries against the loaded DB, commit the queries + screenshots into the design doc |
+
+Each person should actually run their piece locally (e.g. `mysql -u root -p < database/database_setup.sql` or load into the existing SQLite db) before committing, so the commit reflects real, tested work — that's also what satisfies "Test your implementation" in the rubric.
+
+For the ERD itself: since the rubric requires Draw.io/Lucidchart specifically, use the entity list and attributes in `docs/design_rationale.md` as your reference and have one member (or two, collaboratively) build it directly in Draw.io/Lucidchart, then export as PNG/PDF into `docs/`.
