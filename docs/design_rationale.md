@@ -1,6 +1,6 @@
 # MoMo SMS Database — Design Rationale & Data Dictionary
 
-## Design Rationale (≈280 words)
+
 
 The schema centers on **Transactions** as the fact table, since every business question in this project ("how much moved through the system," "who transacted with whom," "which categories dominate") is answered by aggregating transaction rows. **Users** is separated out rather than embedding sender/receiver names directly on Transactions, because the same phone number appears repeatedly as both sender and receiver across many transactions — storing names inline would duplicate data and make updates (e.g. correcting a misspelled name) require touching every affected row. Two foreign keys on Transactions (`sender_id`, `receiver_id`) both reference Users, modeling the two distinct roles a single user can play without needing two separate tables.
 
