@@ -62,3 +62,45 @@ INSERT INTO Transaction_Categories (category_name, category_code, transaction_ty
 ('Cash Deposit',         'TXN_DEP',    'DEPOSIT',      'Cash-in at an agent till'),
 ('Airtime Purchase',     'TXN_AIR',    'AIRTIME',      'Purchase of mobile airtime/bundles'),
 ('Utility Bill Payment', 'TXN_BILL',   'BILL_PAYMENT', 'Payment toward electricity, water, or other utility bills');
+
+
+-- =====================================================================
+-- 3. TRANSACTIONS  (Core fact table — one row per parsed SMS transaction)
+-- =====================================================================
+CREATE TABLE Transactions (
+    transaction_id        BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT 'Surrogate key for a transaction',
+    reference_number        VARCHAR(30) NOT NULL UNIQUE COMMENT 'MoMo transaction reference extracted from the SMS body',
+    sender_id               INT NOT NULL COMMENT 'FK to Users — who initiated/paid',
+    receiver_id              INT NOT NULL COMMENT 'FK to Users — who received the funds',
+    amount                   DECIMAL(14,2) NOT NULL COMMENT 'Transaction amount in RWF',
+    transaction_fee           DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT 'Fee charged by the provider, if any',
+    currency                  CHAR(3) NOT NULL DEFAULT 'RWF' COMMENT 'ISO currency code',
+    balance_after              DECIMAL(14,2) COMMENT 'Sender balance immediately after the transaction, if present in SMS',
+    status                     ENUM('PENDING', 'COMPLETED', 'FAILED', 'REVERSED') NOT NULL DEFAULT 'COMPLETED' COMMENT 'Outcome of the transaction',
+    transaction_date            DATETIME NOT NULL COMMENT 'Timestamp of the transaction as parsed from the SMS',
+    raw_sms_body                 TEXT COMMENT 'Original SMS text, retained for auditability/debugging',
+    created_at                    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Row creation timestamp (audit)',
+    updated_at                    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Row last-modified timestamp (audit)',
+    CONSTRAINT fk_txn_sender FOREIGN KEY (sender_id) REFERENCES Users(user_id)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_txn_receiver FOREIGN KEY (receiver_id) REFERENCES Users(user_id)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT chk_amount_positive CHECK (amount > 0),
+    CONSTRAINT chk_fee_non_negative CHECK (transaction_fee >= 0),
+    CONSTRAINT chk_sender_receiver_diff CHECK (sender_id <> receiver_id)
+) COMMENT = 'Core fact table: one row per MoMo transaction parsed from SMS';
+
+CREATE INDEX idx_txn_date ON Transactions(transaction_date);
+CREATE INDEX idx_txn_status ON Transactions(status);
+CREATE INDEX idx_txn_sender ON Transactions(sender_id);
+CREATE INDEX idx_txn_receiver ON Transactions(receiver_id);
+
+-- --- Transactions (7 records) ---
+INSERT INTO Transactions (reference_number, sender_id, receiver_id, amount, transaction_fee, currency, balance_after, status, transaction_date, raw_sms_body) VALUES
+('MP240115.0930.A12345', 1, 2, 15000.00, 100.00, 'RWF', 109900.00, 'COMPLETED', '2025-01-15 09:30:00', 'You have transferred 15000 RWF to Albertine Umuhoza...'),
+('MP240115.1102.B23456', 3, 6, 25000.00, 0.00,   'RWF', 277500.00, 'COMPLETED', '2025-01-15 11:02:00', 'Your payment of 25000 RWF to Alpha Store Ltd was successful...'),
+('MP240115.1245.C34567', 4, 7, 2000.00,  0.00,   'RWF', 13250.75,  'COMPLETED', '2025-01-15 12:45:00', 'Your airtime purchase of 2000 RWF was successful...'),
+('MP240115.1500.D45678', 2, 1, 10000.00, 50.00,  'RWF', 37950.00,  'COMPLETED', '2025-01-15 15:00:00', 'You have transferred 10000 RWF to Eunice Sangwa...'),
+('MP240115.1630.E56789', 6, 3, 5000.00,  0.00,   'RWF', 885000.00, 'REVERSED',  '2025-01-15 16:30:00', 'Transaction reversed: refund of 5000 RWF...'),
+('MP240116.0800.F67890', 1, 6, 45000.00, 200.00, 'RWF', 64700.00,  'COMPLETED', '2025-01-16 08:00:00', 'Your payment of 45000 RWF to Alpha Store Ltd was successful...'),
+('MP240116.0915.G78901', 3, 7, 1500.00,  0.00,   'RWF', 301000.00, 'PENDING',   '2025-01-16 09:15:00', 'Your airtime purchase of 1500 RWF is being processed...');
