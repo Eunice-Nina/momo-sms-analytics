@@ -104,3 +104,56 @@ INSERT INTO Transactions (reference_number, sender_id, receiver_id, amount, tran
 ('MP240115.1630.E56789', 6, 3, 5000.00,  0.00,   'RWF', 885000.00, 'REVERSED',  '2025-01-15 16:30:00', 'Transaction reversed: refund of 5000 RWF...'),
 ('MP240116.0800.F67890', 1, 6, 45000.00, 200.00, 'RWF', 64700.00,  'COMPLETED', '2025-01-16 08:00:00', 'Your payment of 45000 RWF to Alpha Store Ltd was successful...'),
 ('MP240116.0915.G78901', 3, 7, 1500.00,  0.00,   'RWF', 301000.00, 'PENDING',   '2025-01-16 09:15:00', 'Your airtime purchase of 1500 RWF is being processed...');
+ 
+-- =====================================================================
+-- 4. TRANSACTION_CATEGORY_MAP  (Junction table — resolves M:N)
+-- =====================================================================
+-- A single transaction can carry more than one category tag, and a category
+-- applies to many transactions. This junction table resolves that M:N
+-- relationship between Transactions and Transaction_Categories.
+-- =====================================================================
+CREATE TABLE Transaction_Category_Map (
+    map_id               INT AUTO_INCREMENT PRIMARY KEY,
+    transaction_id         BIGINT NOT NULL COMMENT 'FK to Transactions',
+    category_id             INT NOT NULL COMMENT 'FK to Transaction_Categories',
+    created_at                DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'When this category tag was applied by the ETL',
+    updated_at                DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Row last-modified timestamp (audit)',
+    CONSTRAINT fk_map_transaction FOREIGN KEY (transaction_id) REFERENCES Transactions(transaction_id)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_map_category FOREIGN KEY (category_id) REFERENCES Transaction_Categories(category_id)
+        ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT uq_txn_category UNIQUE (transaction_id, category_id)
+) COMMENT = 'Junction table resolving the M:N relationship between Transactions and Transaction_Categories';
+
+-- =====================================================================
+-- 5. SYSTEM_LOGS  (ETL pipeline audit trail)
+-- =====================================================================
+CREATE TABLE System_Logs (
+    log_id                INT AUTO_INCREMENT PRIMARY KEY,
+    transaction_id           BIGINT COMMENT 'FK to Transactions — nullable, since some logs are pipeline-level',
+    process_type              ENUM('PARSING', 'VALIDATION', 'CATEGORIZATION', 'INSERTION', 'EXPORT') NOT NULL COMMENT 'Which ETL stage produced this log',
+    log_level                  ENUM('INFO', 'WARNING', 'ERROR') NOT NULL DEFAULT 'INFO',
+    message                     TEXT NOT NULL COMMENT 'Human-readable log message',
+    created_at                   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Row creation timestamp (audit)',
+    updated_at                   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Row last-modified timestamp (audit)',
+    CONSTRAINT fk_log_transaction FOREIGN KEY (transaction_id) REFERENCES Transactions(transaction_id)
+        ON UPDATE CASCADE ON DELETE SET NULL
+) COMMENT = 'Audit trail for the ETL pipeline';
+
+CREATE INDEX idx_log_level ON System_Logs(log_level);
+CREATE INDEX idx_log_process ON System_Logs(process_type);
+CREATE INDEX idx_log_created ON System_Logs(created_at);
+
+-- --- Transaction_Category_Map (9 records) ---
+INSERT INTO Transaction_Category_Map (transaction_id, category_id) VALUES
+(1, 1), (2, 2), (2, 6), (3, 5), (4, 1), (5, 2), (6, 2), (6, 6), (7, 5);
+
+-- --- System_Logs (7 records) ---
+INSERT INTO System_Logs (transaction_id, process_type, log_level, message, created_at) VALUES
+(1, 'PARSING',      'INFO', 'Successfully parsed SMS node into transaction MP240115.0930.A12345', '2025-01-15 09:30:05'),
+(1, 'INSERTION',     'INFO', 'Inserted transaction MP240115.0930.A12345 into Transactions table', '2025-01-15 09:30:06'),
+(2, 'CATEGORIZATION', 'INFO', 'Assigned categories Merchant Payment, Utility Bill Payment', '2025-01-15 11:02:04'),
+(3, 'VALIDATION',    'WARNING', 'Amount field required rounding from raw SMS text', '2025-01-15 12:45:02'),
+(5, 'INSERTION',     'INFO', 'Transaction MP240115.1630.E56789 marked REVERSED on insert', '2025-01-15 16:30:07'),
+(NULL, 'EXPORT',     'INFO', 'dashboard.json export completed: 7 transactions exported', '2025-01-16 10:00:00'),
+(7, 'VALIDATION',    'ERROR', 'Duplicate reference number check flagged, then cleared after review', '2025-01-16 09:15:03');
