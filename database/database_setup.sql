@@ -157,3 +157,41 @@ INSERT INTO System_Logs (transaction_id, process_type, log_level, message, creat
 (5, 'INSERTION',     'INFO', 'Transaction MP240115.1630.E56789 marked REVERSED on insert', '2025-01-15 16:30:07'),
 (NULL, 'EXPORT',     'INFO', 'dashboard.json export completed: 7 transactions exported', '2025-01-16 10:00:00'),
 (7, 'VALIDATION',    'ERROR', 'Duplicate reference number check flagged, then cleared after review', '2025-01-16 09:15:03');
+
+
+-- =====================================================================
+-- SAMPLE CRUD / ANALYTICAL QUERIES (tested against loaded data)
+-- =====================================================================
+SELECT
+    t.reference_number,
+    CONCAT(s.first_name, ' ', s.last_name) AS sender,
+    CONCAT(r.first_name, ' ', r.last_name) AS receiver,
+    t.amount, t.status,
+    GROUP_CONCAT(tc.category_name SEPARATOR ', ') AS categories,
+    t.transaction_date
+FROM Transactions t
+JOIN Users s ON t.sender_id = s.user_id
+JOIN Users r ON t.receiver_id = r.user_id
+LEFT JOIN Transaction_Category_Map tcm ON t.transaction_id = tcm.transaction_id
+LEFT JOIN Transaction_Categories tc ON tcm.category_id = tc.category_id
+GROUP BY t.transaction_id
+ORDER BY t.transaction_date;
+
+UPDATE Transactions SET status = 'COMPLETED' WHERE reference_number = 'MP240116.0915.G78901';
+
+DELETE FROM System_Logs WHERE log_level = 'ERROR' AND message LIKE '%cleared after review%';
+
+SELECT tc.category_name, COUNT(tcm.transaction_id) AS num_transactions, SUM(t.amount) AS total_amount
+FROM Transaction_Categories tc
+JOIN Transaction_Category_Map tcm ON tc.category_id = tcm.category_id
+JOIN Transactions t ON tcm.transaction_id = t.transaction_id
+GROUP BY tc.category_id
+ORDER BY total_amount DESC;
+
+SELECT u.user_id, CONCAT(u.first_name, ' ', u.last_name) AS name,
+    COUNT(DISTINCT t1.transaction_id) AS sent_count,
+    COUNT(DISTINCT t2.transaction_id) AS received_count
+FROM Users u
+LEFT JOIN Transactions t1 ON u.user_id = t1.sender_id
+LEFT JOIN Transactions t2 ON u.user_id = t2.receiver_id
+GROUP BY u.user_id;
