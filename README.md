@@ -12,6 +12,8 @@ The system is built as an ETL (Extract, Transform, Load) pipeline feeding a ligh
 - Kevine Niyonkuru — Role : Architecture diagram
 - Munezero Jean Pierre -Role :Scrum board setup
 
+Task sheet link : https://docs.google.com/spreadsheets/d/1RB45q7XWXbDKYkOpRhFR2NO7sjnrrtPxg9bo7fhqVe4/edit?gid=0#gid=0
+
 ## System Architecture
 
 High-level design: XML input → ETL pipeline (parse → clean → categorize → load) → SQLite database → JSON export → frontend dashboard.
@@ -141,7 +143,8 @@ API/dashboard JSON shapes derived from this schema are documented in `examples/j
 ├── examples/
 │   └── json_schemas.json        # JSON models mirroring the SQL schema
 ```
-
+### Links to our Database Design Document
+Link: https://drive.google.com/file/d/1Wmd7B-d48N7y6nHHCpJGrHxLH6LCPjdR/view?usp=sharing
 ---
 
 
