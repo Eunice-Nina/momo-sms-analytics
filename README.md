@@ -10,7 +10,7 @@ The system is built as an ETL (Extract, Transform, Load) pipeline feeding a ligh
 - Eunice Nina Sangwa — Role : Project structure & repository creation
 - Karen Stephy Musangwa — Role : README documentation
 - Kevine Niyonkuru — Role : Architecture diagram
-- Munezero Jean Pierre -Role :Scrambled setup
+- Munezero Jean Pierre -Role :Scrum board setup
 
 ## System Architecture
 
