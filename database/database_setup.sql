@@ -81,10 +81,10 @@ CREATE TABLE Transactions (
     raw_sms_body                 TEXT COMMENT 'Original SMS text, retained for auditability/debugging',
     created_at                    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Row creation timestamp (audit)',
     updated_at                    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Row last-modified timestamp (audit)',
-    CONSTRAINT fk_txn_sender FOREIGN KEY (sender_id) REFERENCES Users(user_id)
-        ON UPDATE CASCADE ON DELETE RESTRICT,
+        CONSTRAINT fk_txn_sender FOREIGN KEY (sender_id) REFERENCES Users(user_id)
+        ON DELETE RESTRICT,
     CONSTRAINT fk_txn_receiver FOREIGN KEY (receiver_id) REFERENCES Users(user_id)
-        ON UPDATE CASCADE ON DELETE RESTRICT,
+        ON DELETE RESTRICT,
     CONSTRAINT chk_amount_positive CHECK (amount > 0),
     CONSTRAINT chk_fee_non_negative CHECK (transaction_fee >= 0),
     CONSTRAINT chk_sender_receiver_diff CHECK (sender_id <> receiver_id)
