@@ -1,1 +1,108 @@
-kevine
+{
+  "_comment": "JSON representations of the momo_sms_db schema, used by api/schemas.py and data/processed/dashboard.json. Each top-level key documents one API resource shape.",
+
+  "user_example": {
+    "user_id": 2,
+    "phone_number": "250788234567",
+    "first_name": "Albertine",
+    "last_name": "Musangwa",
+    "account_status": "ACTIVE",
+    "account_balance": 48000.00,
+    "registration_date": "2025-01-11T10:15:00Z"
+  },
+
+  "transaction_category_example": {
+    "category_id": 6,
+    "category_name": "Utility Bill Payment",
+    "category_code": "TXN_BILL",
+    "transaction_type": "BILL_PAYMENT",
+    "description": "Payment toward electricity, water, or other utility bills"
+  },
+
+  "system_log_example": {
+    "log_id": 3,
+    "transaction_id": 2,
+    "process_type": "CATEGORIZATION",
+    "log_level": "INFO",
+    "message": "Assigned categories Merchant Payment, Utility Bill Payment",
+    "created_at": "2025-01-15T11:02:04Z"
+  },
+
+  "_mapping_notes": {
+    "sql_to_json": "Each SQL table maps to a top-level JSON object. Foreign keys (sender_id, receiver_id, category_id) are resolved into nested objects rather than left as raw integers, since API consumers (web/chart_handler.js) need display-ready data, not IDs to look up. The Transaction_Category_Map junction table is flattened into a 'categories' array on the transaction object -- the M:N relationship becomes a list rather than a separate resource."
+  },
+
+  "complex_transaction_example": {
+    "transaction_id": 6,
+    "reference_number": "MP240116.0800.F67890",
+    "amount": 45000.00,
+    "transaction_fee": 200.00,
+    "currency": "RWF",
+    "balance_after": 64700.00,
+    "status": "COMPLETED",
+    "transaction_date": "2025-01-16T08:00:00Z",
+    "sender": {
+      "user_id": 1,
+      "phone_number": "250788123456",
+      "first_name": "Eunice",
+      "last_name": "Munezero",
+      "account_status": "ACTIVE"
+    },
+    "receiver": {
+      "user_id": 6,
+      "phone_number": "250788678901",
+      "first_name": "Alpha Store",
+      "last_name": "Ltd",
+      "account_status": "ACTIVE"
+    },
+    "categories": [
+      {
+        "category_id": 2,
+        "category_name": "Merchant Payment",
+        "category_code": "TXN_PAY",
+        "transaction_type": "PAYMENT"
+      },
+      {
+        "category_id": 6,
+        "category_name": "Utility Bill Payment",
+        "category_code": "TXN_BILL",
+        "transaction_type": "BILL_PAYMENT"
+      }
+    ],
+    "logs": [
+      {
+        "log_id": 2,
+        "process_type": "INSERTION",
+        "log_level": "INFO",
+        "message": "Inserted transaction MP240115.0930.A12345 into Transactions table",
+        "created_at": "2025-01-15T09:30:06Z"
+      }
+    ]
+  },
+
+  "dashboard_export_example": {
+    "_comment": "Shape of data/processed/dashboard.json consumed by web/chart_handler.js",
+    "summary": {
+      "total_transactions": 7,
+      "total_volume": 103500.00,
+      "date_range": {
+        "from": "2025-01-15",
+        "to": "2025-01-16"
+      }
+    },
+    "by_category": [
+      { "category_name": "Merchant Payment", "num_transactions": 3, "total_amount": 75000.00 },
+      { "category_name": "Peer Transfer", "num_transactions": 2, "total_amount": 25000.00 },
+      { "category_name": "Airtime Purchase", "num_transactions": 2, "total_amount": 3500.00 }
+    ],
+    "recent_transactions": [
+      {
+        "reference_number": "MP240116.0915.G78901",
+        "sender": "Karen Musangwa",
+        "receiver": "MTN Airtime",
+        "amount": 1500.00,
+        "status": "PENDING"
+      }
+    ]
+  }
+}
