@@ -24,7 +24,7 @@ lightweight dashboard, with a REST API layer for serving data dynamically.
 - **Database design document:** https://drive.google.com/file/d/1Wmd7B-d48N7y6nHHCpJGrHxLH6LCPjdR/view?usp=sharing
 
 ---
-
+```
 ## System Architecture
 
 High-level flow:
@@ -43,11 +43,11 @@ JSON export
 Frontend dashboard
 
 (+ REST API on top of the parsed data — see below)
+```
 
-text
 
 ---
-
+```
 ## Project Structure
 ├── README.md # Setup, run, overview
 ├── .env.example # DATABASE_URL or path to SQLite
@@ -107,8 +107,8 @@ text
 │ └── database_setup.sql
 └── examples/
 └── json_schemas.json
+```
 
-text
 
 ---
 
