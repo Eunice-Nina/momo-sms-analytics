@@ -4,7 +4,7 @@ import threading
 
 
 class TransactionStore:
-    def _init_(self, records):
+    def __init__(self, records):
         self._lock = threading.Lock()
         self._records = list(records)
         self._index = {r["id"]: r for r in self._records}

@@ -12,7 +12,7 @@ import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(_file_)))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 from api.auth import is_authorized
@@ -148,5 +148,5 @@ def main():
         server.shutdown()
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()
