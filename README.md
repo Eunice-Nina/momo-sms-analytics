@@ -10,6 +10,9 @@ The system is built as an ETL (Extract, Transform, Load) pipeline feeding a ligh
 - Eunice Nina Sangwa — Role : Project structure & repository creation
 - Karen Stephy Musangwa — Role : README documentation
 - Kevine Niyonkuru — Role : Architecture diagram
+- Munezero Jean Pierre -Role :Scrum board setup
+
+Task sheet link : https://docs.google.com/spreadsheets/d/1RB45q7XWXbDKYkOpRhFR2NO7sjnrrtPxg9bo7fhqVe4/edit?gid=0#gid=0
 
 ## System Architecture
 
@@ -120,3 +123,29 @@ Available endpoints:
 ```bash
 pytest tests/
 ```
+
+
+## Database Design (Week 2)
+
+The relational schema backing the ETL pipeline lives in `database/database_setup.sql` (MySQL DDL + sample data) and is documented in `docs/design_rationale.md`. The ERD is in `docs/erd_diagram.png`.
+
+**Core entities:** Users, Transactions, Transaction_Categories, System_Logs, plus a Transaction_Category_Map junction table resolving the many-to-many relationship between transactions and categories.
+
+API/dashboard JSON shapes derived from this schema are documented in `examples/json_schemas.json`.
+
+### Repository structure additions
+```
+├── docs/
+│   ├── erd_diagram.png          # ERD (Draw.io/Lucidchart export)
+│   └── design_rationale.md      # Design rationale + data dictionary
+├── database/
+│   └── database_setup.sql       # DDL, constraints, indexes, sample data
+├── examples/
+│   └── json_schemas.json        # JSON models mirroring the SQL schema
+```
+### Links to our Database Design Document
+Link: https://drive.google.com/file/d/1Wmd7B-d48N7y6nHHCpJGrHxLH6LCPjdR/view?usp=sharing
+---
+
+
+
